@@ -1,0 +1,10 @@
+Use case: ads-marketing. Create one finished Brazilian Portuguese social media card, portrait 4:5, ideally 1200x1500, for a public GitHub collection named IA na Prática. Sophisticated editorial graphic design, warm ivory background, near-black navy typography, restrained cobalt accents, generous margins, strong typographic hierarchy. Audience: non-programmers and technical leads. Minimal abstract layered document illustration with a small magnifying-glass detail, no hacker hoodies, no green code rain, no padlock stock art, no company logos, no fabricated endorsements, no mockup, no watermark. Perfectly readable Portuguese accents. Every element inside generous safe margins. Use only the following exact text, no extra words:
+Top small: "IA NA PRÁTICA"
+Eyebrow: "OUTUBRO • CIBERSEGURANÇA"
+Main headline large across 3 lines: "Como saber o que precisa de correção?"
+Body: "Um roteiro para revisar projetos com IA, conferir evidências e priorizar atualizações."
+Feature line: "Skills e prompts em português"
+Supporting line: "Comece pelo guia para iniciantes."
+Bottom note: "Referências: Cloudflare · Node.js · NIST"
+Footer call to action: "Repositório público • link na legenda"
+Make headline and body dominant. Footer references understated as sources, not sponsors. Clean premium typography, tactile paper texture very subtle, fully finished publication-ready card.

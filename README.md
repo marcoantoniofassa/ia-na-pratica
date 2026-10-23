@@ -1,63 +1,70 @@
-# Auditoria de segurança com evidências
+<p align="center">
+  <img src="assets/capa.svg" alt="IA na Prática. Skills e prompts em português para entender projetos, organizar pedidos e conferir resultados." width="1200">
+</p>
 
-Roteiro em português para responsáveis técnicos avaliarem código, dependências e evidências de implantação com a [security-audit da Cloudflare](https://github.com/cloudflare/security-audit-skill).
+# IA na Prática
 
-O resultado esperado é uma recomendação sustentada por código e evidências: o que precisa de ação hoje, o que pode entrar na próxima janela e o que ainda não foi verificado. Contagens de scanners não demonstram, sozinhas, falhas exploráveis no produto.
+**Skills, prompts e guias em português para trabalhar com IA, mesmo sem saber programar.**
 
-Outubro é o **Mês de Conscientização sobre Cibersegurança** (*Cybersecurity Awareness Month*), conforme a [referência do NIST](https://www.nist.gov/cybersecurity-awareness-month). A campanha oferece contexto para a revisão periódica; a urgência de cada correção deve resultar das evidências do ambiente analisado.
+Escolha uma tarefa, copie o pedido e confira o resultado. Há um caminho sem instalação para começar e recursos técnicos para quem já usa agentes com acesso a arquivos.
 
-## Base técnica
+[Comece aqui](guias/comece-aqui.md) · [Skills](#skills-da-coleção) · [Fontes públicas](recursos/fontes.md) · [Card para compartilhar](divulgacao/README.md)
 
-A Cloudflare publicou a origem e a evolução desse método em [Build your own vulnerability harness](https://blog.cloudflare.com/build-your-own-vulnerability-harness/). O [repositório oficial](https://github.com/cloudflare/security-audit-skill) descreve as fases e os requisitos. O [SKILL.md](https://github.com/cloudflare/security-audit-skill/blob/main/skills/security-audit/SKILL.md) define os limites de execução e os critérios de confirmação.
+## O que você quer fazer?
 
-O prompt adapta essas instruções ao levantamento de versões e à priorização de manutenção. A seleção inicial do perfil `quick`, a organização por ambiente e o formato da recomendação são escolhas deste roteiro. Não constituem recomendação específica da Cloudflare para qualquer empresa ou produto.
+| Preciso de ajuda para… | Abra este material | O que esperar |
+| --- | --- | --- |
+| Entender uma pasta ou projeto | [Entender um projeto](prompts/entender-projeto.md) | Explicação simples do que existe e do que ainda é desconhecido. |
+| Transformar uma ideia em um pedido claro | [Organizar um pedido](prompts/organizar-pedido.md) | Objetivo, limites e um jeito de conferir a entrega. |
+| Saber se uma entrega está pronta | [Conferir uma entrega](prompts/conferir-entrega.md) | Comparação entre o pedido, o resultado e as evidências disponíveis. |
+| Escolher entre ferramentas ou propostas | [Comparar opções](prompts/comparar-opcoes.md) | Critérios, fontes e custos conhecidos, sem notas inventadas. |
+| Avaliar segurança e atualizações | [Guia de auditoria](guias/auditoria-seguranca.md) | Roteiro técnico com a skill da Cloudflare e validação dos achados. |
 
-## Como usar
+**Primeira vez aqui?** Comece por organizar um pedido. Não exige terminal, instalação nem acesso ao seu computador.
 
-1. Abra o agente no projeto sob sua responsabilidade. Leia as instruções locais e preserve qualquer alteração existente.
-2. Copie o [PROMPT.md](PROMPT.md), preencha o escopo no início e envie ao agente. Rode um repositório por vez. Para comparar com produção, informe também o ambiente e a revisão implantada, se conhecidos.
-3. Leia o relatório e seus limites antes de decidir por correções. A execução deste prompt autoriza a auditoria delimitada, não deploy, rotação de credenciais ou reinício de serviços.
+## Experimente agora
 
-O agente precisa de leitura dos arquivos e, para a auditoria completa, subagentes independentes, Node.js para os validadores e isolamento imposto pelo sistema operacional para executar código. Quando faltar algum requisito, ele deve registrar a limitação, sem inventar teste ou resultado.
+Copie o texto abaixo para a conversa com a IA e troque o que está entre colchetes:
 
-## Skill oficial
-
-- [README e instalação](https://github.com/cloudflare/security-audit-skill#installation)
-- [SKILL.md](https://github.com/cloudflare/security-audit-skill/blob/main/skills/security-audit/SKILL.md)
-
-O comando documentado pela Cloudflare na consulta de 23/10/2026 era:
-
-```sh
-npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit
+```text
+Ajude a transformar esta ideia em um pedido claro: [descreva a ideia].
+Quem vai usar: [público]. O resultado esperado: [resultado].
+Limites: [prazo, orçamento e o que não pode mudar; ou "a definir"].
+Não execute a tarefa ainda. Organize o objetivo, a menor entrega útil
+e como conferir se funcionou. Separe fatos, suposições e dúvidas.
+Pergunte apenas o que realmente impedir uma proposta útil.
 ```
 
-Confira a documentação oficial antes de instalar, inclusive seleção do agente e destino. Não execute esse comando como parte do build do produto. Registre a revisão da skill usada na auditoria.
+Exemplo: organizar os pedidos de uma pequena loja que hoje chegam por mensagens. O primeiro resultado pode ser um modelo de registro dos pedidos; a necessidade de criar um aplicativo depende do problema observado.
 
-Este repositório contém o prompt, não uma cópia nem uma modificação da skill. Não é um projeto oficial da Cloudflare. As instruções do prompt complementam o método oficial; uma limitação de acesso ou isolamento não deve ser contornada.
+## Skills da coleção
 
-## O que conferir no resultado
+Uma **skill** é um conjunto de instruções reutilizáveis que um agente compatível pode carregar. Um **prompt** é o pedido que você cola na conversa. Instalar skills é opcional para usar os prompts desta coleção.
 
-- Revisão realmente analisada, alterações locais e comparação com o deploy.
-- Versão declarada, versão instalada e versão efetivamente em execução, sem misturá-las.
-- Condições de exploração, controles existentes e impacto demonstrado.
-- Separação entre achados confirmados, hipóteses que precisam de validação e melhorias preventivas.
-- Prioridade explicada em linguagem de negócio, correção proposta e risco de regressão.
-- Testes executados, cobertura e pendências, incluindo o que não foi possível verificar.
+| Skill | Quando usar | Exemplo de pedido |
+| --- | --- | --- |
+| [explicar-projeto](skills/explicar-projeto/SKILL.md) | Entender um projeto sem receber uma lista de termos técnicos. | “Explique esta pasta para quem cuida do negócio.” |
+| [organizar-pedido](skills/organizar-pedido/SKILL.md) | Preparar uma tarefa com limites e resultado verificável. | “Transforme esta ideia em um pedido para a equipe.” |
+| [conferir-entrega](skills/conferir-entrega/SKILL.md) | Comparar uma entrega com o combinado e apontar o que falta comprovar. | “Confira se o material atende ao pedido.” |
 
-## Fontes oficiais para a análise
+[Como instalar uma skill](guias/instalar-skills.md). O formato foi validado; o comportamento precisa ser conferido no agente e no contexto em que será usado. As skills não concedem acesso a arquivos nem permissões adicionais.
 
-| Fonte | O que verificar |
-| --- | --- |
-| [Cloudflare: security-audit](https://github.com/cloudflare/security-audit-skill) | Método, instalação, isolamento, validação independente e artefatos exigidos. |
-| [npm: audit](https://docs.npmjs.com/cli/v11/commands/npm-audit/) | Metadados enviados ao registro e limites da análise de dependências. Consultar a versão da documentação correspondente ao CLI utilizado. |
-| [Node.js: releases e suporte](https://nodejs.org/en/about/previous-releases) | Ciclo de suporte do runtime e referências para as versões disponíveis. |
-| [PHP: versões suportadas](https://www.php.net/supported-versions.php) | Suporte ativo, suporte de segurança e fim de suporte. |
-| [WordPress: atualização](https://wordpress.org/documentation/article/updating-wordpress/) | Procedimento de atualização e preparação de backup. Plugins exigem consulta adicional ao mantenedor. |
-| [Docker Engine: notas de versão](https://docs.docker.com/engine/release-notes/) | Correções, mudanças e problemas conhecidos da versão candidata. |
-| [n8n: atualização](https://docs.n8n.io/deploy/host-n8n/keep-n8n-running/update-n8n/) | Notas de migração e validação antes da atualização da instância. |
+## Segurança: uma trilha para o responsável técnico
 
-Referências consultadas em 23/10/2026. Cada execução deve consultar as fontes novamente e vincular cada conclusão ao aviso, versão ou trecho de código correspondente. A lista não certifica compatibilidade nem substitui os avisos de segurança de cada dependência.
+O [prompt de auditoria](PROMPT.md) orienta o uso da **security-audit da Cloudflare**. Ele pede evidências, separa hipóteses de falhas demonstradas e preserva os limites de execução da skill oficial. A instalação sozinha não realiza uma auditoria.
 
-## Tratamento dos resultados
+Quem não programa pode usar o [guia](guias/auditoria-seguranca.md) para entender o resultado e encaminhar o roteiro a quem mantém o sistema. Testes de segurança e mudanças em produção exigem capacidade técnica e autorização específica.
 
-Não coloque relatórios internos, credenciais, logs ou dumps neste repositório. Escolha uma saída privada, fora do código auditado. O prompt não pressupõe que o destinatário tenha acesso aos ambientes de outra pessoa.
+As [fontes comentadas](recursos/fontes.md) explicam o que cada referência sustenta: método da Cloudflare, avisos do Node.js, documentação do npm e a campanha de outubro do NIST. Não há diagnósticos de sistemas particulares nesta coleção.
+
+## Referências e autoria
+
+A organização por objetivos tem como referência o [Vibe Coding Toolkit, de Matheus Gomes](https://github.com/soumatheusgomes/vibe-coding-toolkit). Os materiais desta coleção foram escritos para este repositório; não são uma cópia do toolkit nem uma publicação oficial dos fornecedores citados.
+
+Recursos de terceiros são indicados por links para a origem, com requisitos e limites. Consulte a licença de cada projeto antes de redistribuir seu conteúdo.
+
+## Contribuir e compartilhar
+
+Sugestões de melhoria são bem-vindas: [como contribuir](CONTRIBUTING.md). Use exemplos fictícios, com um objetivo que outra pessoa consiga entender e conferir.
+
+[Card e legenda](divulgacao/README.md) · [Licença MIT](LICENSE)

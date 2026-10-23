@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+<title id="title">IA na Prática</title><desc id="desc">Skills e prompts em português. Para começar e para ir além.</desc>
+<rect width="1200" height="320" rx="24" fill="#f7f5ee"/>
+<rect x="52" y="48" width="48" height="6" rx="3" fill="#2856de"/>
+<text x="52" y="146" fill="#0c1832" font-family="Georgia,serif" font-size="76" font-weight="700">IA na Prática</text>
+<text x="56" y="202" fill="#26374e" font-family="Arial,sans-serif" font-size="26">Skills e prompts em português.</text>
+<text x="56" y="256" fill="#2856de" font-family="Arial,sans-serif" font-size="20">Para começar e para ir além.</text>
+<rect x="810" y="48" width="334" height="224" rx="18" fill="#0c1832"/>
+<g fill="#fff" font-family="Arial,sans-serif" font-size="21"><text x="844" y="106">01  Entender um projeto</text><text x="844" y="165">02  Organizar um pedido</text><text x="844" y="224">03  Conferir uma entrega</text></g>
+</svg>
