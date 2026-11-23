@@ -19,6 +19,7 @@ Escolha uma tarefa, copie o pedido e confira o resultado. Há um caminho sem ins
 | Saber se uma entrega está pronta | [Conferir uma entrega](prompts/conferir-entrega.md) | Comparação entre o pedido, o resultado e as evidências disponíveis. |
 | Escolher entre ferramentas ou propostas | [Comparar opções](prompts/comparar-opcoes.md) | Critérios, fontes e custos conhecidos, sem notas inventadas. |
 | Avaliar segurança e atualizações | [Guia de auditoria](guias/auditoria-seguranca.md) | Roteiro técnico com a skill da Cloudflare e validação dos achados. |
+| Saber se um alerta de segurança (CVE) nos atinge | [Responder a um alerta](prompts/responder-alerta-vulnerabilidade.md) | Mapa de onde o componente roda, com evidência e prioridade. |
 
 **Primeira vez aqui?** Comece por organizar um pedido. Não exige terminal, instalação nem acesso ao seu computador.
 
