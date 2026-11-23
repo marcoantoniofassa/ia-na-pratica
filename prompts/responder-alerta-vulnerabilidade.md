@@ -47,6 +47,8 @@ fora do repositório analisado.
 
 ## Exemplo: NGINX2Root
 
+<img src="../assets/nginx2root-predio.jpg" alt="Ilustração: o visitante fala HTTP/2 com a primeira recepcionista, que repassa um pedido por vez, em HTTP/1.1, ao recepcionista NGINX." width="480">
+
 Em novembro de 2026, o NGINX publicou correções para cinco falhas que ficaram conhecidas como NGINX2Root. A principal, CVE-2026-123007, está no código desde a versão 1.9.5, de 2015, e exige HTTP/2 ativo. Um NGINX que recebe só HTTP/1.1 de outro proxy na frente não aciona essa falha, mesmo com a versão afetada. O passo 4 do prompt existe para encontrar esse caso. [Avisos de segurança do NGINX](https://nginx.org/en/security_advisories.html).
 
 Os números e versões acima são uma fotografia de 23/11/2026. Consulte o aviso vigente antes de decidir.
