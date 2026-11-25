@@ -21,6 +21,7 @@ Escolha uma tarefa, copie o pedido e confira o resultado. Há um caminho sem ins
 | Avaliar segurança e atualizações | [Guia de auditoria](guias/auditoria-seguranca.md) | Roteiro técnico com a skill da Cloudflare e validação dos achados. |
 | Saber se um alerta de segurança (CVE) nos atinge | [Responder a um alerta](prompts/responder-alerta-vulnerabilidade.md) | Mapa de onde o componente roda, com evidência e prioridade. |
 | Ouvir um documento inteiro em vez de ler | [Documento em áudio](guias/pdf-falado.md) | Leitura palavra por palavra com voz natural, conferida, pronta para o WhatsApp. |
+| Achar programa gratuito de código aberto que funciona | [41 projetos com o link conferido](recursos/projetos-codigo-aberto-testados.md) | Lista por uso, com a licença de cada um e a data da conferência. |
 
 **Primeira vez aqui?** Comece por organizar um pedido. Não exige terminal, instalação nem acesso ao seu computador.
 
