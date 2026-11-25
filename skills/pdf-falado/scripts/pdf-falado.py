@@ -271,6 +271,17 @@ def main():
         lang_code, voz_padrao = KOKORO[a.idioma]
         a.voz, a.tempo = a.voz or voz_padrao, a.tempo or 1.0
     ref = None
+    if a.motor in ("kokoro", "voxcpm2"):
+        # Motor local precisa da GPU do Mac (Metal). Sandbox de agente (ex.: Codex) esconde a GPU: sem esta
+        # checagem o agente gastou 14 min contornando com MLX so de CPU (25/11/2026). Falhar cedo e claro.
+        try:
+            import mlx.core as mx
+            tem_metal = mx.metal.is_available()
+        except Exception:
+            tem_metal = False
+        if not tem_metal:
+            sys.exit(f"motor {a.motor} precisa da GPU do Mac (Metal) e ela nao esta visivel (sandbox de agente?). "
+                     "Rode fora do sandbox ou use --motor gemini, que so precisa de rede.")
     if a.motor == "voxcpm2":
         try:
             import mlx_audio  # noqa: F401
