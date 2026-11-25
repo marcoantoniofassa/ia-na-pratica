@@ -8,4 +8,4 @@ Coleção pública de documentação, prompts e skills em português para inicia
 - Não publique credenciais, caminhos internos, relatórios de clientes ou resultados de produção, inclusive em exemplos e histórico.
 - Na trilha de segurança, preserve as regras atuais da Cloudflare e a distinção entre hipótese e falha demonstrada.
 - Verifique links locais, frontmatter das skills, texto do card e conteúdo enviado ao GitHub. Não confunda validação de formato com teste de comportamento.
-- Não há aplicação ou dependências para instalar neste repositório.
+- Não há aplicação para instalar. Exceção: `skills/pdf-falado` traz um script Python que depende de ffmpeg, whisper.cpp e chave Gemini; mantenha esses requisitos explícitos no `SKILL.md` e no guia.
