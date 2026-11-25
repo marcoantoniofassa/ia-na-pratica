@@ -1,18 +1,19 @@
 ---
 name: pdf-falado
-description: Transformar um documento (PDF, Word ou texto) em áudio com voz natural, lido palavra por palavra e conferido por transcrição. Use quando alguém precisa ouvir um texto inteiro, sem resumo, no fone ou no WhatsApp. Exige Python, ffmpeg, whisper.cpp e uma chave da API Gemini.
+description: Transformar um documento (PDF, Word ou texto) em áudio com voz natural, lido palavra por palavra e conferido por transcrição. Use quando alguém precisa ouvir um texto inteiro, sem resumo, no fone ou no WhatsApp. Dois motores, Gemini (melhor voz, chave da API) ou Kokoro (local e grátis no Mac); exige Python, ffmpeg e whisper.cpp.
 license: MIT
 ---
 
 # PDF Falado
 
-Leitura integral, não resumo. O texto é reescrito para ser falado, a voz do Gemini lê parágrafo por parágrafo, o Whisper transcreve cada trecho e o script compara com o roteiro. Parágrafo com frase faltando é gerado de novo.
+Leitura integral, não resumo. O texto é reescrito para ser falado, a voz (Gemini pela API ou Kokoro local) lê parágrafo por parágrafo, o Whisper transcreve cada trecho e o script compara com o roteiro. Parágrafo com frase faltando é gerado de novo.
 
 ## Antes de começar
 
 - **Requisitos:** `python3`, `ffmpeg`, `whisper-cli` (whisper.cpp) e o modelo `ggml-large-v3-turbo.bin`, com o caminho em `WHISPER_MODEL`. A chave da API Gemini fica em `GEMINI_API_KEY`. O link do modelo está no topo de `scripts/pdf-falado.py`. Testado no macOS.
-- **Chave:** se `GEMINI_API_KEY` não estiver no ambiente, peça ao usuário que configure ou que cole a chave para você gravar no ambiente. Nunca grave a chave em arquivo do projeto nem a repita na resposta.
-- **Privacidade:** no nível gratuito, o Google pode usar o texto enviado para melhorar os produtos, e revisores humanos podem ler trechos. Para documento sigiloso, confirme com o usuário antes de enviar ou use uma chave com faturamento.
+- **Dois motores:** `--motor gemini` (padrão) tem a voz mais natural e usa a API. `--motor kokoro` roda no Mac com Apple Silicon, sem custo e sem o texto sair do computador; a voz é um pouco menos natural. Para o Kokoro: `brew install espeak-ng` e rodar o script com `uv run --python 3.11 --with mlx-audio --with "misaki[en]" --with phonemizer-fork --with espeakng-loader python ...`.
+- **Chave (só Gemini):** se `GEMINI_API_KEY` não estiver no ambiente, peça ao usuário que configure ou que cole a chave para você gravar no ambiente. Nunca grave a chave em arquivo do projeto nem a repita na resposta.
+- **Privacidade:** com o Kokoro nada sai do computador. No Gemini, no nível gratuito, o Google pode usar o texto enviado para melhorar os produtos, e revisores humanos podem ler trechos. Para documento sigiloso, confirme com o usuário antes de enviar ou use uma chave com faturamento.
 
 ## 1. Extrair o texto
 
@@ -56,4 +57,4 @@ Informe duração, quantos parágrafos passaram na conferência e o custo. Não 
 
 ## Custo e voz
 
-Padrão: `gemini-3.8-flash-tts`, voz Charon, 8% mais rápido. Em novembro de 2026, com faturamento, custava cerca de US$ 0,014 por minuto de áudio; `--modelo gemini-3.8-flash-lite-tts` sai cerca de 24% mais barato. Os preços mudam: confira a [página oficial](https://ai.google.dev/gemini-api/docs/pricing). Outras vozes: `--voz` com um nome da [documentação de TTS](https://ai.google.dev/gemini-api/docs/speech-generation).
+Kokoro: sem custo, voz `pm_alex` em português (`--voz pf_dora` para voz feminina); fala também inglês, espanhol, francês e italiano. Gemini, padrão: `gemini-3.8-flash-tts`, voz Charon, 8% mais rápido. Em novembro de 2026, com faturamento, custava cerca de US$ 0,014 por minuto de áudio; `--modelo gemini-3.8-flash-lite-tts` sai cerca de 24% mais barato. Os preços mudam: confira a [página oficial](https://ai.google.dev/gemini-api/docs/pricing). Outras vozes: `--voz` com um nome da [documentação de TTS](https://ai.google.dev/gemini-api/docs/speech-generation).
