@@ -8,9 +8,12 @@ limites de cada paragrafo (janela fixa de 60 s corta frase no meio e gera falso 
 
 Precisa: python3, ffmpeg, whisper-cli (brew install whisper-cpp) e o modelo ggml-large-v3-turbo.bin
 (https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin), apontado em
-WHISPER_MODEL. Chave Gemini em GEMINI_API_KEY (gratis em aistudio.google.com/apikey).
+WHISPER_MODEL. Motor gemini (padrao): chave em GEMINI_API_KEY (gratis em aistudio.google.com/apikey).
+Motor kokoro (local, gratis, Apple Silicon): brew install espeak-ng e rodar com
+  uv run --python 3.11 --with mlx-audio --with "misaki[en]" --with phonemizer-fork --with espeakng-loader \
+    python pdf-falado.py roteiro.txt saida --motor kokoro
 
-uso: python3 pdf-falado.py <roteiro.txt> <saida-sem-extensao> [--idioma pt-BR] [--voz Charon] [--tempo 1.08] [--paralelo 4]
+uso: python3 pdf-falado.py <roteiro.txt> <saida-sem-extensao> [--motor gemini|kokoro] [--idioma pt-BR] [--voz ...] [--tempo ...] [--paralelo 4]
      python3 pdf-falado.py --check      autoteste do comparador (casos reais de 24/11)
 Roteiro: paragrafos separados por linha em branco; '===' separa secoes (pausa maior).
 Saida: <saida>.mp3, <saida>.ogg (opus, pra mandar como audio nativo do WhatsApp) e <saida>.json
@@ -28,6 +31,10 @@ IDIOMAS = {"pt-BR": ("Brazilian Portuguese", "pt"), "pt-PT": ("European Portugue
 ESTILO = ("calm, clear, professional narrator reading a document aloud in full in {nome}, steady natural pace; "
           "words from other languages, brand names and technical terms keep their native pronunciation")
 STYLE, LANG_WHISPER = ESTILO.format(nome="Brazilian Portuguese"), "pt"  # trocados por --idioma no main
+# Kokoro (local): idioma -> (lang_code, voz padrao). pf_dora e voz feminina em pt-BR.
+KOKORO = {"pt-BR": ("p", "pm_alex"), "pt-PT": ("p", "pm_alex"), "en": ("a", "am_michael"),
+          "es": ("e", "em_alex"), "fr": ("f", "ff_siwis"), "it": ("i", "im_nicola")}
+KOKORO_MODELO, _kokoro, _kokoro_lock = "mlx-community/Kokoro-82M-bf16", None, threading.Lock()
 WHISPER = os.environ.get("WHISPER_MODEL") or os.path.expanduser(
     "~/Library/Application Support/github.com.thewh1teagle.vibe/ggml-large-v3-turbo.bin")
 PAUSA_PAR, PAUSA_SEC, TENTATIVAS = 0.6, 1.4, 3
@@ -141,6 +148,23 @@ def gen(texto, voz, k, destino, modelo):
     return resp.get("usageMetadata", {}).get("candidatesTokenCount", 0)
 
 
+def gen_kokoro(texto, voz, destino, lang_code):
+    """Motor local: Kokoro no Apple Silicon via mlx-audio. Uma geracao por vez (MLX nao e thread-safe)."""
+    global _kokoro
+    import numpy as np
+    from mlx_audio.tts.utils import load_model
+    # Kokoro corta texto longo sem aviso: uma frase por linha (split_pattern do mlx-audio e "\n+")
+    frases = re.sub(r"(?<=[.!?;:])\s+", "\n", texto.strip())
+    with _kokoro_lock:
+        if _kokoro is None:
+            _kokoro = load_model(KOKORO_MODELO)
+        partes = [np.array(r.audio, dtype=np.float32) for r in _kokoro.generate(text=frases, voice=voz, speed=1.0, lang_code=lang_code)]
+    pcm = (np.clip(np.concatenate(partes), -1, 1) * 32767).astype("<i2").tobytes()
+    with wave.open(destino, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000); w.writeframes(pcm)
+    return 0
+
+
 def ff(*a):
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", *a], check=True)
 
@@ -153,19 +177,24 @@ def dur(p):
 def ouvir(wav_in):
     wav = wav_in + ".16k.wav"
     ff("-i", wav_in, "-ar", "16000", "-ac", "1", wav)
-    # -mc 0: sem contexto entre segmentos; com contexto o whisper.cpp pula frase inteira
+    # -mc 0: sem contexto entre segmentos; com contexto o whisper.cpp pula frase inteira.
+    # Sem -nt: sem marcacao de tempo ele pula texto na emenda das janelas de 30 s (paragrafo de 42 s, 25/11/2026).
     with OUVIR:
-        o = subprocess.run(["whisper-cli", "-m", WHISPER, "-l", LANG_WHISPER, "-mc", "0", "-nt", "-np", "-f", wav],
-                           capture_output=True, text=True).stdout.strip()
+        o = subprocess.run(["whisper-cli", "-m", WHISPER, "-l", LANG_WHISPER, "-mc", "0", "-np", "-f", wav],
+                           capture_output=True, text=True).stdout
+    o = " ".join(re.sub(r"^\s*\[[^\]]*\]\s*", "", linha).strip() for linha in o.splitlines() if linha.strip())
     os.remove(wav)
     return o
 
 
-def unidade(n, texto, voz, k, raw, modelo):
+def unidade(n, texto, voz, k, raw, modelo, motor="gemini", lang_code="p"):
     base, tokens = f"{raw}/u{n:03d}", 0
     melhor = None
     for t in range(TENTATIVAS):
-        tokens += gen(texto, voz, k, f"{base}.try.wav", modelo)
+        if motor == "kokoro":
+            tokens += gen_kokoro(texto, voz, f"{base}.try.wav", lang_code)
+        else:
+            tokens += gen(texto, voz, k, f"{base}.try.wav", modelo)
         ok, cob, falta = atesta(texto, ouvir(f"{base}.try.wav"))
         if melhor is None or cob > melhor[1]:
             os.replace(f"{base}.try.wav", f"{base}.wav")
@@ -178,7 +207,9 @@ def unidade(n, texto, voz, k, raw, modelo):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("roteiro"); ap.add_argument("saida")
-    ap.add_argument("--voz", default="Charon"); ap.add_argument("--tempo", type=float, default=1.08)
+    ap.add_argument("--motor", default="gemini", choices=["gemini", "kokoro"], help="kokoro = local e gratis (Apple Silicon)")
+    ap.add_argument("--voz", help="padrao: Charon (gemini), pm_alex (kokoro pt-BR)")
+    ap.add_argument("--tempo", type=float, help="padrao: 1.08 (gemini), 1.0 (kokoro)")
     ap.add_argument("--modelo", default="gemini-3.8-flash-tts", choices=list(PRECO))
     ap.add_argument("--idioma", default="pt-BR", help="pt-BR (padrao), pt-PT, en, es, fr, it, de ou outro (whisper detecta)")
     ap.add_argument("--paralelo", type=int, default=4, help="1 na chave gratuita")
@@ -186,15 +217,26 @@ def main():
     global STYLE, LANG_WHISPER
     nome, LANG_WHISPER = IDIOMAS.get(a.idioma, (a.idioma, "auto"))
     STYLE = ESTILO.format(nome=nome)
+    lang_code = "p"
+    if a.motor == "kokoro":
+        if a.idioma not in KOKORO:
+            sys.exit(f"kokoro nao fala {a.idioma}; idiomas: {', '.join(KOKORO)}")
+        try:
+            import mlx_audio  # noqa: F401
+        except ImportError:
+            sys.exit('motor kokoro precisa de mlx-audio: veja o "uv run --with mlx-audio ..." no topo do script')
+        lang_code, voz_padrao = KOKORO[a.idioma]
+        a.voz, a.tempo = a.voz or voz_padrao, a.tempo or 1.0
+    a.voz, a.tempo = a.voz or "Charon", a.tempo or 1.08
     if not os.path.exists(WHISPER):
         sys.exit(f"modelo do whisper nao encontrado em {WHISPER}: baixe ggml-large-v3-turbo.bin e aponte WHISPER_MODEL")
     raw = a.saida + "-raw"
     os.makedirs(raw, exist_ok=True)
     U = [(s, p.strip()) for s, sec in enumerate(open(a.roteiro).read().split("==="))
          for p in sec.split("\n\n") if p.strip()]
-    k = key()
+    k = key() if a.motor == "gemini" else None
     with ThreadPoolExecutor(a.paralelo) as ex:
-        res = list(ex.map(lambda x: unidade(x[0], x[1][1], a.voz, k, raw, a.modelo), enumerate(U)))
+        res = list(ex.map(lambda x: unidade(x[0], x[1][1], a.voz, k, raw, a.modelo, a.motor, lang_code), enumerate(U)))
     tokens = sum(r[3] for r in res)
     for n, (ok, cob, falta), t, _ in res:
         if not ok:
@@ -231,9 +273,10 @@ def main():
     for n, (_, cob, falta) in ruins:
         print(f"FINAL REVER u{n:03d} {cob:.0%} nao ouvido: {falta}  (ouvir esse trecho antes de entregar)")
     total = dur(f"{a.saida}.mp3")
+    custo = (f"motor local kokoro ({a.voz}), sem custo" if a.motor == "kokoro" else
+             f"{tokens} tokens de audio ({a.modelo}) = US$ {tokens * PRECO[a.modelo] / 1e6:.2f} (zero na chave gratuita)")
     print(f"{len(U) - len(ruins)}/{len(U)} paragrafos atestados no arquivo final | {total / 60:.1f} min | "
-          f"{tokens} tokens de audio ({a.modelo}) = US$ {tokens * PRECO[a.modelo] / 1e6:.2f} (zero na chave gratuita) | "
-          f"{a.saida}.mp3, .ogg e .json")
+          f"{custo} | {a.saida}.mp3, .ogg e .json")
 
 
 def check():

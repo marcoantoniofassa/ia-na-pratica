@@ -53,6 +53,8 @@ Quero a leitura integral do documento desta pasta (PDF, Word ou texto) em áudio
 
 Você recebe `leitura.mp3` para guardar e `leitura.ogg`, que o WhatsApp trata como mensagem de voz.
 
+**Sem custo e sem o texto sair do computador:** em Mac com Apple Silicon, peça para rodar com `--motor kokoro` (o topo do script mostra o comando com `uv`). Não precisa de chave; a voz é um pouco menos natural que a do Gemini.
+
 ## 3. Avançado: instalar como skill
 
 Para quem já usa agente no dia a dia. A skill fica instalada no seu usuário e responde a pedidos como "transforma este PDF em áudio" em qualquer pasta. Cole no Claude Code ou no Codex:
@@ -65,7 +67,7 @@ Instale a skill pdf-falado do repositório https://github.com/marcoantoniofassa/
    Escolha este agente e a instalação global. Sem Node 22 ou mais recente, clone o repositório e copie skills/pdf-falado para a pasta de skills do agente (Claude Code: ~/.claude/skills/; Codex: ~/.codex/skills/). Se já existir uma skill com esse nome, pergunte antes de sobrescrever.
 3. Instale as dependências que faltarem: python3, ffmpeg e whisper.cpp (no macOS: brew install ffmpeg whisper-cpp). Baixe o modelo ggml-large-v3-turbo.bin (link no topo do script) para uma pasta fixa e grave o caminho em WHISPER_MODEL no meu perfil de shell.
 4. Peça minha chave do Gemini (aistudio.google.com/apikey) e grave em GEMINI_API_KEY no perfil de shell ou no gerenciador de segredos que eu já uso. Nunca em arquivo de projeto e nunca na resposta.
-5. Rode o autoteste: python3 <pasta da skill>/scripts/pdf-falado.py --check. Depois gere um teste com um roteiro de dois parágrafos e me mostre a última linha do relatório.
+5. Se este for um Mac com Apple Silicon, instale também o motor local: brew install espeak-ng e confirme que o uv está instalado. Rode o autoteste: python3 <pasta da skill>/scripts/pdf-falado.py --check. Depois gere um teste com um roteiro de dois parágrafos e me mostre a última linha do relatório.
 6. Me diga onde a skill ficou, como chamá-la e o que ficou pendente. Não instale nada além do listado.
 ```
 
