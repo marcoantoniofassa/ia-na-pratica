@@ -12,8 +12,12 @@ WHISPER_MODEL. Motor gemini (padrao): chave em GEMINI_API_KEY (gratis em aistudi
 Motor kokoro (local, gratis, Apple Silicon): brew install espeak-ng e rodar com
   uv run --python 3.11 --with mlx-audio --with "misaki[en]" --with phonemizer-fork --with espeakng-loader \
     python pdf-falado.py roteiro.txt saida --motor kokoro
+Motor voxcpm2 (local, voz mais natural, Apache): mesmo "uv run --with mlx-audio ..." do kokoro, com
+    --motor voxcpm2 --ref voz.wav   (wav de 3 a 10 s; texto falado nela em voz.txt, opcional)
+  ou --instruct "voz feminina jovem, calma e clara, sotaque brasileiro" pra criar a voz por descricao
+  (criada uma vez e travada como referencia, senao a voz muda de paragrafo pra paragrafo).
 
-uso: python3 pdf-falado.py <roteiro.txt> <saida-sem-extensao> [--motor gemini|kokoro] [--idioma pt-BR] [--voz ...] [--tempo ...] [--paralelo 4]
+uso: python3 pdf-falado.py <roteiro.txt> <saida-sem-extensao> [--motor gemini|kokoro|voxcpm2] [--idioma pt-BR] [--voz ...] [--tempo ...] [--paralelo 4]
      python3 pdf-falado.py --check      autoteste do comparador (casos reais de 24/11)
 Roteiro: paragrafos separados por linha em branco; '===' separa secoes (pausa maior).
 Saida: <saida>.mp3, <saida>.ogg (opus, pra mandar como audio nativo do WhatsApp) e <saida>.json
@@ -35,6 +39,8 @@ STYLE, LANG_WHISPER = ESTILO.format(nome="Brazilian Portuguese"), "pt"  # trocad
 KOKORO = {"pt-BR": ("p", "pm_alex"), "pt-PT": ("p", "pm_alex"), "en": ("a", "am_michael"),
           "es": ("e", "em_alex"), "fr": ("f", "ff_siwis"), "it": ("i", "im_nicola")}
 KOKORO_MODELO, _kokoro, _kokoro_lock = "mlx-community/Kokoro-82M-bf16", None, threading.Lock()
+VOXCPM_MODELO, _vox, _vox_lock = "mlx-community/VoxCPM2-8bit", None, threading.Lock()
+REF_FRASE = "Oi, tudo bem? Acabei de terminar a análise e tenho uma notícia boa pra te dar. Deu certo, e foi mais rápido do que eu esperava."
 WHISPER = os.environ.get("WHISPER_MODEL") or os.path.expanduser(
     "~/Library/Application Support/github.com.thewh1teagle.vibe/ggml-large-v3-turbo.bin")
 PAUSA_PAR, PAUSA_SEC, TENTATIVAS = 0.6, 1.4, 3
@@ -55,6 +61,7 @@ MULT = {"mil": 1000, "milhao": 10**6, "milhoes": 10**6, "bilhao": 10**9, "bilhoe
 def toks(t):
     """Normaliza roteiro e transcricao pro mesmo alfabeto: numero por extenso e em digito viram o
     mesmo digito, sigla soletrada ("O.B.D.", "A, B, C") e colada ("OBD2", "ABC") viram a mesma."""
+    t = re.sub(r"\[[a-z-]+\]", " ", t)  # [laughter], [sigh]: marca de som, nao palavra
     t = unicodedata.normalize("NFKD", t.lower().replace("%", " por cento "))
     t = "".join(c for c in t if not unicodedata.combining(c))
     t = re.sub(r"\b((?:[a-z]\.){2,})", lambda m: m.group(1).replace(".", "") + " ", t)  # "c.a.c." = "cac"
@@ -165,6 +172,37 @@ def gen_kokoro(texto, voz, destino, lang_code):
     return 0
 
 
+def _voxcpm(texto, **kw):
+    """VoxCPM2 no Apple Silicon via mlx-audio; devolve (amostras float32, sample rate). Uma geracao por vez."""
+    global _vox
+    import numpy as np
+    from mlx_audio.tts.utils import load_model
+    with _vox_lock:
+        if _vox is None:
+            _vox = load_model(VOXCPM_MODELO)
+        partes = [np.array(r.audio, dtype=np.float32) for r in _vox.generate(text=texto, **kw)]
+        return np.concatenate(partes), getattr(_vox, "sample_rate", 48000)
+
+
+def _grava(destino, amostras, sr):
+    import numpy as np
+    pcm = (np.clip(np.asarray(amostras, dtype=np.float32), -1, 1) * 32767).astype("<i2").tobytes()
+    with wave.open(destino, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm)
+
+
+def gen_voxcpm(texto, destino, ref, ref_texto):
+    """Clona SEMPRE a mesma referencia, senao a voz muda de paragrafo pra paragrafo."""
+    _grava(destino, *_voxcpm(texto, ref_audio=ref, ref_text=ref_texto or None))
+    return 0
+
+
+def cria_voz(instruct, destino):
+    """Voz por descricao vira referencia travada (uma vez), usada pra clonar todos os paragrafos."""
+    _grava(destino, *_voxcpm(REF_FRASE, instruct=instruct))
+    return destino, REF_FRASE
+
+
 def ff(*a):
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", *a], check=True)
 
@@ -187,12 +225,14 @@ def ouvir(wav_in):
     return o
 
 
-def unidade(n, texto, voz, k, raw, modelo, motor="gemini", lang_code="p"):
+def unidade(n, texto, voz, k, raw, modelo, motor="gemini", lang_code="p", ref=None):
     base, tokens = f"{raw}/u{n:03d}", 0
     melhor = None
     for t in range(TENTATIVAS):
         if motor == "kokoro":
             tokens += gen_kokoro(texto, voz, f"{base}.try.wav", lang_code)
+        elif motor == "voxcpm2":
+            tokens += gen_voxcpm(texto, f"{base}.try.wav", *ref)
         else:
             tokens += gen(texto, voz, k, f"{base}.try.wav", modelo)
         ok, cob, falta = atesta(texto, ouvir(f"{base}.try.wav"))
@@ -207,7 +247,10 @@ def unidade(n, texto, voz, k, raw, modelo, motor="gemini", lang_code="p"):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("roteiro"); ap.add_argument("saida")
-    ap.add_argument("--motor", default="gemini", choices=["gemini", "kokoro"], help="kokoro = local e gratis (Apple Silicon)")
+    ap.add_argument("--motor", default="gemini", choices=["gemini", "kokoro", "voxcpm2"],
+                    help="kokoro = local e rapido; voxcpm2 = local e mais natural (Apple Silicon)")
+    ap.add_argument("--ref", help="voxcpm2: wav de 3 a 10 s da voz a clonar (texto dela em .txt de mesmo nome, opcional)")
+    ap.add_argument("--instruct", help='voxcpm2 sem --ref: descricao da voz, ex. "voz feminina jovem, calma e clara"')
     ap.add_argument("--voz", help="padrao: Charon (gemini), pm_alex (kokoro pt-BR)")
     ap.add_argument("--tempo", type=float, help="padrao: 1.08 (gemini), 1.0 (kokoro)")
     ap.add_argument("--modelo", default="gemini-3.8-flash-tts", choices=list(PRECO))
@@ -227,6 +270,21 @@ def main():
             sys.exit('motor kokoro precisa de mlx-audio: veja o "uv run --with mlx-audio ..." no topo do script')
         lang_code, voz_padrao = KOKORO[a.idioma]
         a.voz, a.tempo = a.voz or voz_padrao, a.tempo or 1.0
+    ref = None
+    if a.motor == "voxcpm2":
+        try:
+            import mlx_audio  # noqa: F401
+        except ImportError:
+            sys.exit('motor voxcpm2 precisa de mlx-audio: veja o "uv run --with mlx-audio ..." no topo do script')
+        if a.ref:
+            txt = os.path.splitext(a.ref)[0] + ".txt"
+            ref = (a.ref, " ".join(open(txt).read().split()) if os.path.exists(txt) else None)
+        elif a.instruct:
+            os.makedirs(a.saida + "-raw", exist_ok=True)
+            ref = cria_voz(a.instruct, a.saida + "-raw/voz-ref.wav")
+        else:
+            sys.exit('voxcpm2 precisa de --ref voz.wav ou --instruct "descricao da voz"')
+        a.voz, a.tempo = a.voz or os.path.basename(ref[0]), a.tempo or 1.0
     a.voz, a.tempo = a.voz or "Charon", a.tempo or 1.08
     if not os.path.exists(WHISPER):
         sys.exit(f"modelo do whisper nao encontrado em {WHISPER}: baixe ggml-large-v3-turbo.bin e aponte WHISPER_MODEL")
@@ -236,7 +294,7 @@ def main():
          for p in sec.split("\n\n") if p.strip()]
     k = key() if a.motor == "gemini" else None
     with ThreadPoolExecutor(a.paralelo) as ex:
-        res = list(ex.map(lambda x: unidade(x[0], x[1][1], a.voz, k, raw, a.modelo, a.motor, lang_code), enumerate(U)))
+        res = list(ex.map(lambda x: unidade(x[0], x[1][1], a.voz, k, raw, a.modelo, a.motor, lang_code, ref), enumerate(U)))
     tokens = sum(r[3] for r in res)
     for n, (ok, cob, falta), t, _ in res:
         if not ok:
@@ -273,7 +331,7 @@ def main():
     for n, (_, cob, falta) in ruins:
         print(f"FINAL REVER u{n:03d} {cob:.0%} nao ouvido: {falta}  (ouvir esse trecho antes de entregar)")
     total = dur(f"{a.saida}.mp3")
-    custo = (f"motor local kokoro ({a.voz}), sem custo" if a.motor == "kokoro" else
+    custo = (f"motor local {a.motor} ({a.voz}), sem custo" if a.motor != "gemini" else
              f"{tokens} tokens de audio ({a.modelo}) = US$ {tokens * PRECO[a.modelo] / 1e6:.2f} (zero na chave gratuita)")
     print(f"{len(U) - len(ruins)}/{len(U)} paragrafos atestados no arquivo final | {total / 60:.1f} min | "
           f"{custo} | {a.saida}.mp3, .ogg e .json")

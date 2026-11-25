@@ -1,17 +1,18 @@
 ---
 name: pdf-falado
-description: Transformar um documento (PDF, Word ou texto) em áudio com voz natural, lido palavra por palavra e conferido por transcrição. Use quando alguém precisa ouvir um texto inteiro, sem resumo, no fone ou no WhatsApp. Dois motores, Gemini (melhor voz, chave da API) ou Kokoro (local e grátis no Mac); exige Python, ffmpeg e whisper.cpp.
+description: Transformar um documento (PDF, Word ou texto) em áudio com voz natural, lido palavra por palavra e conferido por transcrição. Use quando alguém precisa ouvir um texto inteiro, sem resumo, no fone ou no WhatsApp. Motores: Gemini (melhor voz, chave da API), VoxCPM2 (local, natural, clona ou cria voz) e Kokoro (local, rápido); exige Python, ffmpeg e whisper.cpp.
 license: MIT
 ---
 
 # PDF Falado
 
-Leitura integral, não resumo. O texto é reescrito para ser falado, a voz (Gemini pela API ou Kokoro local) lê parágrafo por parágrafo, o Whisper transcreve cada trecho e o script compara com o roteiro. Parágrafo com frase faltando é gerado de novo.
+Leitura integral, não resumo. O texto é reescrito para ser falado, a voz (Gemini pela API, ou VoxCPM2 e Kokoro locais) lê parágrafo por parágrafo, o Whisper transcreve cada trecho e o script compara com o roteiro. Parágrafo com frase faltando é gerado de novo.
 
 ## Antes de começar
 
 - **Requisitos:** `python3`, `ffmpeg`, `whisper-cli` (whisper.cpp) e o modelo `ggml-large-v3-turbo.bin`, com o caminho em `WHISPER_MODEL`. A chave da API Gemini fica em `GEMINI_API_KEY`. O link do modelo está no topo de `scripts/pdf-falado.py`. Testado no macOS.
-- **Dois motores:** `--motor gemini` (padrão) tem a voz mais natural e usa a API. `--motor kokoro` roda no Mac com Apple Silicon, sem custo e sem o texto sair do computador; a voz é um pouco menos natural. Para o Kokoro: `brew install espeak-ng` e rodar o script com `uv run --python 3.11 --with mlx-audio --with "misaki[en]" --with phonemizer-fork --with espeakng-loader python ...`.
+- **Três motores:** `--motor gemini` (padrão) usa a API e tem a voz mais natural. Os locais rodam no Mac com Apple Silicon, sem custo e sem o texto sair do computador: `--motor voxcpm2` (licença Apache) chega perto do Gemini em naturalidade, clonando uma gravação de 3 a 10 s (`--ref voz.wav`, com o texto dela em `voz.txt`) ou criando a voz por descrição (`--instruct "voz feminina jovem, calma e clara"`), e leva cerca de 1 a 3 vezes a duração do áudio; `--motor kokoro` é o mais rápido, com voz menos natural. Para os locais: `brew install espeak-ng` e rodar o script com `uv run --python 3.11 --with mlx-audio --with "misaki[en]" --with phonemizer-fork --with espeakng-loader python ...`.
+- **Clonagem:** clone só a sua voz ou uma voz com autorização de quem gravou. Não clone voz de pessoa real sem consentimento, inclusive de famosos.
 - **Chave (só Gemini):** se `GEMINI_API_KEY` não estiver no ambiente, peça ao usuário que configure ou que cole a chave para você gravar no ambiente. Nunca grave a chave em arquivo do projeto nem a repita na resposta.
 - **Privacidade:** com o Kokoro nada sai do computador. No Gemini, no nível gratuito, o Google pode usar o texto enviado para melhorar os produtos, e revisores humanos podem ler trechos. Para documento sigiloso, confirme com o usuário antes de enviar ou use uma chave com faturamento.
 
@@ -57,4 +58,4 @@ Informe duração, quantos parágrafos passaram na conferência e o custo. Não 
 
 ## Custo e voz
 
-Kokoro: sem custo, voz `pm_alex` em português (`--voz pf_dora` para voz feminina); fala também inglês, espanhol, francês e italiano. Gemini, padrão: `gemini-3.8-flash-tts`, voz Charon, 8% mais rápido. Em novembro de 2026, com faturamento, custava cerca de US$ 0,014 por minuto de áudio; `--modelo gemini-3.8-flash-lite-tts` sai cerca de 24% mais barato. Os preços mudam: confira a [página oficial](https://ai.google.dev/gemini-api/docs/pricing). Outras vozes: `--voz` com um nome da [documentação de TTS](https://ai.google.dev/gemini-api/docs/speech-generation).
+VoxCPM2: sem custo, a voz é a da referência ou da descrição; em teste cego no português do Brasil empatou com o melhor modelo local não comercial. Kokoro: sem custo, voz `pm_alex` em português (`--voz pf_dora` para voz feminina); fala também inglês, espanhol, francês e italiano. Gemini, padrão: `gemini-3.8-flash-tts`, voz Charon, 8% mais rápido. Em novembro de 2026, com faturamento, custava cerca de US$ 0,014 por minuto de áudio; `--modelo gemini-3.8-flash-lite-tts` sai cerca de 24% mais barato. Os preços mudam: confira a [página oficial](https://ai.google.dev/gemini-api/docs/pricing). Outras vozes: `--voz` com um nome da [documentação de TTS](https://ai.google.dev/gemini-api/docs/speech-generation).

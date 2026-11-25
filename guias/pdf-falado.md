@@ -53,7 +53,7 @@ Quero a leitura integral do documento desta pasta (PDF, Word ou texto) em áudio
 
 Você recebe `leitura.mp3` para guardar e `leitura.ogg`, que o WhatsApp trata como mensagem de voz.
 
-**Sem custo e sem o texto sair do computador:** em Mac com Apple Silicon, peça para rodar com `--motor kokoro` (o topo do script mostra o comando com `uv`). Não precisa de chave; a voz é um pouco menos natural que a do Gemini.
+**Sem custo e sem o texto sair do computador:** em Mac com Apple Silicon, peça para rodar com `--motor voxcpm2 --instruct "voz feminina jovem, calma e clara"` (voz natural, criada pela descrição) ou `--motor kokoro` (mais rápido, voz menos natural). O topo do script mostra o comando com `uv`. Não precisa de chave.
 
 ## 3. Avançado: instalar como skill
 
