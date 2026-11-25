@@ -16,7 +16,7 @@ Dentro do projeto de destino, o comando abaixo seleciona apenas a skill `explica
 npx skills add https://github.com/marcoantoniofassa/ia-na-pratica --skill explicar-projeto
 ```
 
-Escolha o agente quando o instalador perguntar e confira o destino antes de aceitar. Para outra skill, substitua o nome por `organizar-pedido` ou `conferir-entrega`.
+Escolha o agente quando o instalador perguntar e confira o destino antes de aceitar. Para outra skill, substitua o nome por `organizar-pedido`, `conferir-entrega` ou `pdf-falado`. A `pdf-falado` traz um script e precisa de dependências: veja o [guia](pdf-falado.md).
 
 O comando usa a rede e pode baixar o CLI, além dos arquivos da skill. Por padrão, o CLI documenta instalação no projeto atual; uma instalação global tem escopo maior. Não execute dentro de uma pasta desconhecida. Política de telemetria e opções: [documentação oficial](https://github.com/vercel-labs/skills/blob/main/docs/troubleshooting.md#telemetry).
 

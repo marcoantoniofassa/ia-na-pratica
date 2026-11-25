@@ -20,6 +20,7 @@ Escolha uma tarefa, copie o pedido e confira o resultado. Há um caminho sem ins
 | Escolher entre ferramentas ou propostas | [Comparar opções](prompts/comparar-opcoes.md) | Critérios, fontes e custos conhecidos, sem notas inventadas. |
 | Avaliar segurança e atualizações | [Guia de auditoria](guias/auditoria-seguranca.md) | Roteiro técnico com a skill da Cloudflare e validação dos achados. |
 | Saber se um alerta de segurança (CVE) nos atinge | [Responder a um alerta](prompts/responder-alerta-vulnerabilidade.md) | Mapa de onde o componente roda, com evidência e prioridade. |
+| Ouvir um documento inteiro em vez de ler | [Documento em áudio](guias/pdf-falado.md) | Leitura palavra por palavra com voz natural, conferida, pronta para o WhatsApp. |
 
 **Primeira vez aqui?** Comece por organizar um pedido. Não exige terminal, instalação nem acesso ao seu computador.
 
@@ -47,6 +48,7 @@ Uma **skill** é um conjunto de instruções reutilizáveis que um agente compat
 | [explicar-projeto](skills/explicar-projeto/SKILL.md) | Entender um projeto sem receber uma lista de termos técnicos. | “Explique esta pasta para quem cuida do negócio.” |
 | [organizar-pedido](skills/organizar-pedido/SKILL.md) | Preparar uma tarefa com limites e resultado verificável. | “Transforme esta ideia em um pedido para a equipe.” |
 | [conferir-entrega](skills/conferir-entrega/SKILL.md) | Comparar uma entrega com o combinado e apontar o que falta comprovar. | “Confira se o material atende ao pedido.” |
+| [pdf-falado](skills/pdf-falado/SKILL.md) | Transformar um documento em áudio com voz natural, lido inteiro e conferido. Exige Python, ffmpeg, whisper.cpp e chave Gemini. | “Transforme este PDF em áudio para eu ouvir no WhatsApp.” |
 
 [Como instalar uma skill](guias/instalar-skills.md). O formato foi validado; o comportamento precisa ser conferido no agente e no contexto em que será usado. As skills não concedem acesso a arquivos nem permissões adicionais.
 
@@ -57,6 +59,11 @@ O [prompt de auditoria](PROMPT.md) orienta o uso da **security-audit da Cloudfla
 Quem não programa pode usar o [guia](guias/auditoria-seguranca.md) para entender o resultado e encaminhar o roteiro a quem mantém o sistema. Testes de segurança e mudanças em produção exigem capacidade técnica e autorização específica.
 
 As [fontes comentadas](recursos/fontes.md) explicam o que cada referência sustenta: método da Cloudflare, avisos do Node.js, documentação do npm e a campanha de outubro do NIST. Não há diagnósticos de sistemas particulares nesta coleção.
+
+## Outros projetos abertos
+
+- [Pulse](https://github.com/marcoantoniofassa/pulse-community): ditado em português no Mac, gratuito, local e aberto.
+- [Fassa Frame](https://github.com/marcoantoniofassa/fassa-frame): edição de vídeo por conversa, com guias simples para marketing e gestão.
 
 ## Referências e autoria
 
