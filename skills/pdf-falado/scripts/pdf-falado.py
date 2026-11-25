@@ -10,7 +10,7 @@ Precisa: python3, ffmpeg, whisper-cli (brew install whisper-cpp) e o modelo ggml
 (https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin), apontado em
 WHISPER_MODEL. Chave Gemini em GEMINI_API_KEY (gratis em aistudio.google.com/apikey).
 
-uso: python3 pdf-falado.py <roteiro.txt> <saida-sem-extensao> [--voz Charon] [--tempo 1.08] [--paralelo 4]
+uso: python3 pdf-falado.py <roteiro.txt> <saida-sem-extensao> [--idioma pt-BR] [--voz Charon] [--tempo 1.08] [--paralelo 4]
      python3 pdf-falado.py --check      autoteste do comparador (casos reais de 24/11)
 Roteiro: paragrafos separados por linha em branco; '===' separa secoes (pausa maior).
 Saida: <saida>.mp3, <saida>.ogg (opus, pra mandar como audio nativo do WhatsApp) e <saida>.json
@@ -22,7 +22,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 # US$ por 1M tokens de audio de saida ate 31/12/2026 (dobra em 2027): conferir na pagina de precos
 PRECO = {"gemini-3.8-flash-tts": 9.00, "gemini-3.8-flash-lite-tts": 6.00}
-STYLE = "calm, clear, professional Brazilian Portuguese narrator reading a document aloud in full, steady natural pace"
+# --idioma: (nome pro estilo da voz, idioma do whisper). Fora da lista, o whisper detecta sozinho.
+IDIOMAS = {"pt-BR": ("Brazilian Portuguese", "pt"), "pt-PT": ("European Portuguese", "pt"),
+           "en": ("English", "en"), "es": ("Spanish", "es"), "fr": ("French", "fr"), "it": ("Italian", "it"), "de": ("German", "de")}
+ESTILO = ("calm, clear, professional narrator reading a document aloud in full in {nome}, steady natural pace; "
+          "words from other languages, brand names and technical terms keep their native pronunciation")
+STYLE, LANG_WHISPER = ESTILO.format(nome="Brazilian Portuguese"), "pt"  # trocados por --idioma no main
 WHISPER = os.environ.get("WHISPER_MODEL") or os.path.expanduser(
     "~/Library/Application Support/github.com.thewh1teagle.vibe/ggml-large-v3-turbo.bin")
 PAUSA_PAR, PAUSA_SEC, TENTATIVAS = 0.6, 1.4, 3
@@ -150,7 +155,7 @@ def ouvir(wav_in):
     ff("-i", wav_in, "-ar", "16000", "-ac", "1", wav)
     # -mc 0: sem contexto entre segmentos; com contexto o whisper.cpp pula frase inteira
     with OUVIR:
-        o = subprocess.run(["whisper-cli", "-m", WHISPER, "-l", "pt", "-mc", "0", "-nt", "-np", "-f", wav],
+        o = subprocess.run(["whisper-cli", "-m", WHISPER, "-l", LANG_WHISPER, "-mc", "0", "-nt", "-np", "-f", wav],
                            capture_output=True, text=True).stdout.strip()
     os.remove(wav)
     return o
@@ -175,8 +180,12 @@ def main():
     ap.add_argument("roteiro"); ap.add_argument("saida")
     ap.add_argument("--voz", default="Charon"); ap.add_argument("--tempo", type=float, default=1.08)
     ap.add_argument("--modelo", default="gemini-3.8-flash-tts", choices=list(PRECO))
+    ap.add_argument("--idioma", default="pt-BR", help="pt-BR (padrao), pt-PT, en, es, fr, it, de ou outro (whisper detecta)")
     ap.add_argument("--paralelo", type=int, default=4, help="1 na chave gratuita")
     a = ap.parse_args()
+    global STYLE, LANG_WHISPER
+    nome, LANG_WHISPER = IDIOMAS.get(a.idioma, (a.idioma, "auto"))
+    STYLE = ESTILO.format(nome=nome)
     if not os.path.exists(WHISPER):
         sys.exit(f"modelo do whisper nao encontrado em {WHISPER}: baixe ggml-large-v3-turbo.bin e aponte WHISPER_MODEL")
     raw = a.saida + "-raw"

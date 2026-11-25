@@ -24,8 +24,9 @@ Grave `roteiro.txt` com o texto inteiro, palavra por palavra, pronto para ser fa
 
 - Números, valores, datas e unidades por extenso: "um milhão e duzentos mil reais", "vinte e três graus".
 - Códigos, documentos, CEP e placas dígito por dígito, por extenso, **cada um em parágrafo próprio**. Dentro de parágrafo longo, a voz costuma pular sequências de dígitos.
-- Siglas soletradas com pontos ("C.A.C.", "O.B.D.") e fórmulas por extenso ("cê ó dois").
-- Texto em CAIXA ALTA vira caixa normal, senão a voz soletra. Marcadores de lista somem.
+- Siglas como as pessoas falam: a que se fala como palavra vira palavra em caixa normal ("Cac", "Pix", "Fifa"); a que se soletra fica em maiúsculas ("CPF", "CNPJ"). Fórmulas por extenso ("cê ó dois").
+- Termos em outra língua ficam na grafia original ("Customer Success", "check-in"): a voz pronuncia na língua deles. Não traduza.
+- Palavra comum em CAIXA ALTA vira caixa normal, senão a voz soletra. Marcadores de lista somem.
 - Tabela vira frases: diga as colunas e depois cada linha. Campo vazio vira "campo em branco"; linha de assinatura vira "Linha de assinatura:".
 - Parágrafos de até umas 120 palavras. Termine com "Fim do documento."
 
@@ -37,7 +38,7 @@ Não resuma, não comente e não corrija o conteúdo. Se algo for ilegível, mar
 python3 <pasta desta skill>/scripts/pdf-falado.py roteiro.txt leitura --paralelo 1
 ```
 
-Use `--paralelo 1` com chave gratuita; com faturamento, até 4. Rode **uma cópia do script por vez**: cada Whisper ocupa cerca de 1,5 GB de memória, e várias cópias juntas podem travar o computador. `python3 <pasta>/scripts/pdf-falado.py --check` roda o autoteste do comparador.
+Use `--paralelo 1` com chave gratuita; com faturamento, até 4. Documento em outro idioma: `--idioma en` (ou `es`, `fr`, `it`, `de`, `pt-PT`); nesse caso mantenha números em algarismos, porque o comparador só converte números por extenso em português. Rode **uma cópia do script por vez**: cada Whisper ocupa cerca de 1,5 GB de memória, e várias cópias juntas podem travar o computador. `python3 <pasta>/scripts/pdf-falado.py --check` roda o autoteste do comparador.
 
 O script gera cada parágrafo, confere, gera de novo até 3 vezes quando falta frase, monta o arquivo e confere o arquivo final recortado nos limites de cada parágrafo. A última linha traz parágrafos conferidos, duração e custo.
 

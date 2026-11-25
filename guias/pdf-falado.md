@@ -17,8 +17,10 @@ Regras:
 - Blocos de no máximo 200 palavras, com uma linha "---" entre eles. Quebre em fim de frase.
 - Números, valores e datas por extenso ("um milhão e duzentos mil reais", "trinta dias").
 - Códigos, documentos e placas dígito por dígito, por extenso, cada um numa frase curta.
-- Siglas com pontos ("C.A.C.") e fórmulas por extenso ("cê ó dois").
-- Tire marcadores de lista e escreva em caixa normal, não em CAIXA ALTA.
+- Siglas como as pessoas falam: a que se fala como palavra vira palavra ("Cac", "Pix"); a que se soletra fica em maiúsculas ("CPF").
+- Termos em outra língua ficam na grafia original, sem traduzir.
+- Fórmulas por extenso ("cê ó dois").
+- Tire marcadores de lista e escreva palavras comuns em caixa normal, não em CAIXA ALTA.
 - Tabela vira frase: diga as colunas e depois cada linha.
 - Termine com "Fim do documento."
 
@@ -43,7 +45,7 @@ Para quem tem Claude Pro ou ChatGPT Plus. Sai um arquivo único, conferido.
 Quero a leitura integral do documento desta pasta (PDF, Word ou texto) em áudio natural, sem resumo, usando o script pdf-falado.py que está aqui.
 
 1. Instale o que faltar: ffmpeg, whisper-cpp e o modelo ggml-large-v3-turbo.bin (o link está no topo do script). Vou colar minha chave do Gemini quando você pedir: guarde só na variável GEMINI_API_KEY, nunca em arquivo.
-2. Extraia o texto e escreva roteiro.txt com ele inteiro, palavra por palavra, pronto para ser falado: números, valores e datas por extenso; códigos e documentos dígito por dígito, cada um em parágrafo próprio; siglas com pontos; fórmulas por extenso; tabela como frases; sem CAIXA ALTA nem marcadores de lista; parágrafos separados por linha em branco.
+2. Extraia o texto e escreva roteiro.txt com ele inteiro, palavra por palavra, pronto para ser falado: números, valores e datas por extenso; códigos e documentos dígito por dígito, cada um em parágrafo próprio; siglas como as pessoas falam (Cac, Pix como palavra; CPF, CNPJ soletrados); termos em outra língua na grafia original; fórmulas por extenso; tabela como frases; sem CAIXA ALTA em palavra comum nem marcadores de lista; parágrafos separados por linha em branco.
 3. Rode: python3 pdf-falado.py roteiro.txt leitura --paralelo 1
 4. Se aparecer REVER, corrija aquele parágrafo do roteiro e rode de novo. Rode uma cópia do script por vez.
 5. No fim, me diga a duração e quantos parágrafos passaram na conferência.
