@@ -1,12 +1,69 @@
 # Auditoria de segurança com evidências
 
+Um ponto de partida em português para revisar a segurança de um app feito com IA. Se você mantém o código, o roteiro técnico vem depois do checklist.
+
+## Comece aqui se você criou um aplicativo com IA
+
+Você pode começar mesmo sem saber programar. Use seu próprio app ou um projeto que você tenha autorização para revisar. Nesta etapa, a IA lê o código e levanta pontos para conferir com quem mantém o app.
+
+1. Identifique onde estão os arquivos do projeto e quem cuida da hospedagem. Se não souber, peça essa informação ao responsável.
+2. Em um agente autorizado a ler essa pasta, copie o pedido abaixo e preencha os campos. Um chat sem acesso aos arquivos só consegue orientar a partir do que você fornecer.
+3. Leia o resultado com quem mantém o aplicativo. Peça uma decisão para cada pendência antes de publicar ou alterar o sistema em uso.
+
+```text
+Quero uma revisão preventiva do meu aplicativo [nome], para [uso e público].
+O código autorizado para leitura está em [pasta ou repositório].
+Ambiente em uso, se conhecido: [descreva ou escreva "não sei"].
+
+Leia somente esse código e os documentos que eu fornecer. Não acesse sistemas
+de terceiros, não execute testes de invasão, não altere arquivos ou serviços,
+não instale ferramentas e não publique nada. Se precisar de acesso adicional,
+explique o que falta antes de agir.
+
+Verifique, quando houver evidência disponível: acesso de usuários e
+administradores; proteção de dados pessoais; senhas e chaves expostas;
+dependências e atualizações; cópias de segurança e recuperação; registros
+de erros; e configurações de publicação. Não exiba segredos ou dados pessoais.
+
+Para cada item, explique em português simples o risco, a evidência sem dados
+sensíveis, a ação proposta, quem deve decidir e como conferir a correção.
+Separe o que foi observado, o que é hipótese e o que não pôde ser verificado.
+Não trate ausência de evidência como prova de segurança. Não faça correções.
+```
+
+Não cole senhas, chaves, dados de clientes ou relatórios privados na conversa. Se algo sensível aparecer no resultado, trate-o em um canal privado com o responsável técnico.
+
+### Escreva uma regra que você consiga conferir
+
+Uma spec de segurança descreve o que o app precisa proteger e como você vai verificar isso. Comece com uma regra.
+
+| Campo | Exemplo para um app de pedidos |
+| --- | --- |
+| O que precisa ser protegido? | Os pedidos de cada loja. |
+| Quem pode ver? | Somente quem tem acesso àquela loja. |
+| Como conferir? | Num ambiente de teste, com duas lojas e dados fictícios, confirme que cada conta vê apenas os pedidos da própria loja. |
+| Quem aprova? | A pessoa responsável pelo app confere o resultado antes da publicação. |
+
+Se você usa uma ferramenta que gera o app, inclua a regra no pedido e peça que quem mantém o sistema confira a implementação e os testes. Registre como pendente qualquer regra que ainda não tenha evidência.
+
+### Checklist para decidir os próximos passos
+
+- [ ] A resposta identifica o aplicativo, os arquivos revisados e o que ficou fora do alcance.
+- [ ] Cada preocupação tem evidência verificável ou está marcada como hipótese ou pendência.
+- [ ] O responsável sabe quem pode acessar os dados e quais permissões precisam ser revistas.
+- [ ] Há uma pessoa responsável e um prazo para cada correção ou verificação pendente.
+- [ ] Antes de uma mudança, a equipe definiu como validar o resultado e voltar atrás se necessário.
+- [ ] Uma pessoa com capacidade técnica revisou as recomendações e confirmou as correções com evidências.
+
+Se algum item não puder ser comprovado, registre-o como pendente. Para uma investigação técnica mais profunda, encaminhe este guia e o [prompt de auditoria](../PROMPT.md) ao responsável. Testes adicionais e mudanças em produção precisam de autorização específica.
+
+## Base técnica
+
 Roteiro em português para responsáveis técnicos avaliarem código, dependências e evidências de implantação com a [security-audit da Cloudflare](https://github.com/cloudflare/security-audit-skill).
 
 O resultado esperado é uma recomendação sustentada por código e evidências: o que precisa de ação hoje, o que pode entrar na próxima janela e o que ainda não foi verificado. Contagens de scanners não demonstram, sozinhas, falhas exploráveis no produto.
 
 Outubro é o **Mês de Conscientização sobre Cibersegurança** (*Cybersecurity Awareness Month*), conforme a [referência do NIST](https://www.nist.gov/cybersecurity-awareness-month). A campanha oferece contexto para a revisão periódica; a urgência de cada correção deve resultar das evidências do ambiente analisado.
-
-## Base técnica
 
 A Cloudflare publicou a origem e a evolução desse método em [Build your own vulnerability harness](https://blog.cloudflare.com/build-your-own-vulnerability-harness/). O [repositório oficial](https://github.com/cloudflare/security-audit-skill) descreve as fases e os requisitos. O [SKILL.md](https://github.com/cloudflare/security-audit-skill/blob/main/skills/security-audit/SKILL.md) define os limites de execução e os critérios de confirmação.
 
